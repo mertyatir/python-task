@@ -130,12 +130,11 @@ def api():
 
     # Resolve 'colorCode' for each 'labelId'
     if 'labelIds' in merged_data.columns:
-        merged_data['colorCodes'] = None  # Add a new column to store the color codes
+        colorCodes = []  # Initialize an empty list to store the color codes
         for index, row in merged_data.iterrows():
             if row['labelIds'] is None:
                 continue
             labelIds = row['labelIds'].split(',')  # Split the 'labelIds' string into a list
-            colorCodes = []  # Initialize an empty list to store the color codes
             for labelId in labelIds:
                 response = requests.get(f'https://api.baubuddy.de/dev/index.php/v1/labels/{labelId}', headers=headers)
 
@@ -174,7 +173,9 @@ def api():
                         colorCodes.append(colorCode)  # Add the color code to the list
                     else:
                         print(f"Error: No data returned for label ID {labelId}")
-        merged_data.at[index, 'colorCodes'] = colorCodes  # Assign the list of color codes to the 'colorCodes' column    
+        if colorCodes != []:
+            merged_data['colorCodes'] = None
+            merged_data.at[index, 'colorCodes'] = colorCodes  # Assign the list of color codes to the 'colorCodes' column    
     else:
         print("Error: 'labelIds' column not found")
 
