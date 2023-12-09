@@ -36,17 +36,10 @@ else:
 
 # Filter columns
 if "colorCode" in df.columns:
-    columns = ['rnr', 'hu','colorCode'] + args.keys
+    columns = ['rnr', 'hu',"gruppe",'colorCode'] + args.keys
 else:
-    columns = ['rnr', 'hu'] + args.keys
+    columns = ['rnr', 'hu', "gruppe",] + args.keys
 df = df[columns]
-
-# Sort DataFrame by 'gruppe' column
-if 'gruppe' in df.columns:
-    df = df.sort_values('gruppe')
-else:
-    print("Error: 'gruppe' column not found in DataFrame")
-
 
 
 # Check if 'hu' column exists
@@ -58,27 +51,11 @@ if 'hu' in df.columns:
 else:
     print("Error: 'hu' column not found in DataFrame")
 
-# Check if 'hu_diff' column exists
-if 'hu_diff' in df.columns:
-    # Ensure 'hu_diff' is the first column
-    df = df[['hu_diff'] + [col for col in df.columns if col != 'hu_diff']]
-else:
-    print("Error: 'hu_diff' column not found in DataFrame")
 
 # Write to Excel file
 filename = f'vehicles_{datetime.now().isoformat()}.xlsx'
+df.to_excel(filename, index=False)
 
-
-
-dfWithDroppedColumns= df.drop(columns=['hu_diff'])
-
-
-if 'colorCode' in df.columns:
-    dfWithDroppedColumns= df.drop(columns=['colorCode','hu_diff'])
-else:
-    dfWithDroppedColumns= df.drop(columns=['hu_diff'])
-
-dfWithDroppedColumns.to_excel(filename, index=False)
 
 
 # Open the Excel file with openpyxl
@@ -88,7 +65,9 @@ ws = wb.active
 # Apply color formatting
 if args.colored:
     for row in ws.iter_rows(min_row=2, max_row=ws.max_row):
-        hu_diff = df.loc[row[0].row - 2, 'hu_diff']
+        hu_diff = df.loc[row[0].row - 2, "hu_diff"]
+
+        print(hu_diff)
         if hu_diff <= 3:
             fill = PatternFill(start_color="007500", end_color="007500", fill_type="solid")
         elif hu_diff <= 12:
@@ -104,15 +83,11 @@ if 'labelIds' in df.columns and 'colorCode' in df.columns and 'labelIds' in args
     for index, row in df.iterrows():
         # Check if 'colorCode' is not null
         if pd.notnull(row['colorCode']):
-
-            print("row['colorCode']",row['colorCode'])
             # Convert colorCode to ARGB hex value
             color_code = row['colorCode'].lstrip('#')
             if len(color_code) == 6:
                 color_code = 'FF' + color_code
             # Use colorCode to tint the cell's text in Excel file
-            ws.cell(row=index+2, column=columns.index('labelIds')).font = Font(color=color_code)
-
-
+            ws.cell(row=index+2, column=columns.index('labelIds')+1).font = Font(color=color_code)
 # Save the changes
 wb.save(filename)

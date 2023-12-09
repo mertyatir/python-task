@@ -10,7 +10,6 @@ def api():
     # Convert CSV data to DataFrame
     csv_data = pd.read_csv(StringIO(request.data.decode('utf-8')))
 
-    print("CSV data",csv_data.shape)
 
     # Authenticate
     url = "https://api.baubuddy.de/index.php/login"
@@ -106,8 +105,8 @@ def api():
     if response.status_code == 200:
         # Convert the response to JSON
 
-        #data= [mock_data]
-        data = response.json()
+        data= [mock_data]
+        #data = response.json()
 
         # Convert the JSON data to a DataFrame
         api_data = pd.DataFrame(data)
@@ -127,15 +126,6 @@ def api():
         merged_data = merged_data[merged_data['hu'].notna()]
     else :
         print("Error: 'hu' column not found")
-
-    
-
-    print("After filtering out resources without 'hu'",merged_data.shape)
-    
-
-
-    # Print nonNaN values for "labelIds"
-    print("NonNaN values for 'labelIds'",merged_data['labelIds'].dropna().unique())
 
 
     # Resolve 'colorCode' for each 'labelId'
