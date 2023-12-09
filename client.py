@@ -35,8 +35,8 @@ else:
 
 
 # Filter columns
-if "colorCode" in df.columns:
-    columns = ['rnr', 'hu','colorCode'] + args.keys
+if "colorCodes" in df.columns:
+    columns = ['rnr', 'hu','colorCodes'] + args.keys
 else:
     columns = ['rnr', 'hu'] + args.keys
 df = df[columns]
@@ -83,17 +83,19 @@ if args.colored:
             cell.fill = fill
             
 
-# Check if 'labelIds' and 'colorCode' are in DataFrame columns and keys argument
-if 'labelIds' in df.columns and 'colorCode' in df.columns and 'labelIds' in args.keys:
+# Check if 'labelIds' and 'colorCodes' are in DataFrame columns and keys argument
+if 'labelIds' in df.columns and 'colorCodes' in df.columns and 'labelIds' in args.keys:
     # Iterate over each row in DataFrame
     for index, row in df.iterrows():
-        # Check if 'colorCode' is not null
-        if pd.notnull(row['colorCode']):
-            # Convert colorCode to ARGB hex value
-            color_code = row['colorCode'].lstrip('#')
-            if len(color_code) == 6:
-                color_code = 'FF' + color_code
-            # Use colorCode to tint the cell's text in Excel file
-            ws.cell(row=index+2, column=columns.index('labelIds')+1).font = Font(color=color_code)
+        # Check if 'colorCodes' is not null
+        if pd.notnull(row['colorCodes']).any():
+            # Convert colorCodes to ARGB hex value
+            color_codes = [code.lstrip('#') for code in row['colorCodes']]
+            for color_code in color_codes:
+                if len(color_code) == 6:
+                    color_code = 'FF' + color_code
+                # Use colorCode to tint the cell's text in Excel file
+                ws.cell(row=index+2, column=columns.index('labelIds')+1).font = Font(color=color_code)
+                break
 # Save the changes
 wb.save(filename)

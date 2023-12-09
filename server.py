@@ -94,7 +94,7 @@ def api():
     "userId": None,
     "externalId": "",
     "vin": "",
-    "labelIds": "134,133",
+    "labelIds": "76,132,121",
     "bleGroupEnum": None,
     "profilePictureUrl": "https://api.baubuddy.de/dev/infomaterial/Dokumente_vero_test/RNR_108/Bilder/2023-10-10_04-52-06-1000005472-209-108-1000005472.jpg",
     "thumbPathUrl": "https://api.baubuddy.de/dev/infomaterial/Dokumente_vero_test/RNR_108/Bilder/Thumbs/2023-10-10_04-52-06-1000005472-209-108-1000005472.jpg"
@@ -105,8 +105,8 @@ def api():
     if response.status_code == 200:
         # Convert the response to JSON
 
-        #data= [mock_data]
-        data = response.json()
+        data= [mock_data]
+        #data = response.json()
 
         # Convert the JSON data to a DataFrame
         api_data = pd.DataFrame(data)
@@ -130,10 +130,12 @@ def api():
 
     # Resolve 'colorCode' for each 'labelId'
     if 'labelIds' in merged_data.columns:
+        merged_data['colorCodes'] = None  # Add a new column to store the color codes
         for index, row in merged_data.iterrows():
             if row['labelIds'] is None:
                 continue
             labelIds = row['labelIds'].split(',')  # Split the 'labelIds' string into a list
+            colorCodes = []  # Initialize an empty list to store the color codes
             for labelId in labelIds:
                 response = requests.get(f'https://api.baubuddy.de/dev/index.php/v1/labels/{labelId}', headers=headers)
 
@@ -169,9 +171,10 @@ def api():
                         first_dict = response_data[0]  # Access the first dictionary in the list
                         colorCode = first_dict.get('colorCode')  # Get the 'colorCode'
                         print(f"Resolved colorCode {colorCode} for label ID {labelId}")
-                        merged_data.loc[index, 'colorCode'] = colorCode
+                        colorCodes.append(colorCode)  # Add the color code to the list
                     else:
                         print(f"Error: No data returned for label ID {labelId}")
+        merged_data.at[index, 'colorCodes'] = colorCodes  # Assign the list of color codes to the 'colorCodes' column    
     else:
         print("Error: 'labelIds' column not found")
 
