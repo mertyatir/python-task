@@ -115,22 +115,12 @@ def api():
         print(f"/dev/index.php/v1/vehicles/select/active Error: Server returned status code {response.status_code}")
 
 
-
-    print("API data",api_data.shape)
-
     # Merge CSV data and API data
     merged_data = pd.concat([csv_data, api_data], ignore_index=True)
-
-    print("Merged data",merged_data.shape)
 
     # Drop duplicate rows
     merged_data.drop_duplicates(inplace=True)
 
-
-    print("Merged data after dropping duplicates",merged_data.shape)
-
-    # Before filtering out resources without 'hu'
-    print("Before filtering out resources without 'hu'",merged_data.shape)
 
     # Filter out resources without 'hu'
     if 'hu' in merged_data.columns:
@@ -150,15 +140,10 @@ def api():
 
     # Resolve 'colorCode' for each 'labelId'
     if 'labelIds' in merged_data.columns:
-        print("Resolving 'colorCode' for each 'labelId'")
         for index, row in merged_data.iterrows():
-            print(f"Processing row {index}")
             if row['labelIds'] is None:
                 continue
             labelIds = row['labelIds'].split(',')  # Split the 'labelIds' string into a list
-            print("is List ", isinstance(row['labelIds'], list))
-            print("type ", type(row['labelIds']))
-            print("value ", row['labelIds'])
             for labelId in labelIds:
                 response = requests.get(f'https://api.baubuddy.de/dev/index.php/v1/labels/{labelId}', headers=headers)
 
