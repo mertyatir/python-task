@@ -36,9 +36,9 @@ else:
 
 # Filter columns
 if "colorCode" in df.columns:
-    columns = ['rnr', 'hu',"gruppe",'colorCode'] + args.keys
+    columns = ['rnr', 'hu','colorCode'] + args.keys
 else:
-    columns = ['rnr', 'hu', "gruppe",] + args.keys
+    columns = ['rnr', 'hu'] + args.keys
 df = df[columns]
 
 
@@ -50,6 +50,13 @@ if 'hu' in df.columns:
     df['hu_diff'] = (df['hu'].dt.year - pd.Timestamp.now().year) * 12 + df['hu'].dt.month - pd.Timestamp.now().month
 else:
     print("Error: 'hu' column not found in DataFrame")
+
+
+
+
+# Sort DataFrame by 'gruppe' and reset index
+df.sort_values('gruppe', inplace=True)
+df.reset_index(drop=True, inplace=True)
 
 
 # Write to Excel file
@@ -66,16 +73,15 @@ ws = wb.active
 if args.colored:
     for row in ws.iter_rows(min_row=2, max_row=ws.max_row):
         hu_diff = df.loc[row[0].row - 2, "hu_diff"]
-
-        print(hu_diff)
-        if hu_diff <= 3:
+        if hu_diff >= -3:
             fill = PatternFill(start_color="007500", end_color="007500", fill_type="solid")
-        elif hu_diff <= 12:
+        elif hu_diff  >= -12:
             fill = PatternFill(start_color="FFA500", end_color="FFA500", fill_type="solid")
         else:
             fill = PatternFill(start_color="b30000", end_color="b30000", fill_type="solid")
         for cell in row:
             cell.fill = fill
+            
 
 # Check if 'labelIds' and 'colorCode' are in DataFrame columns and keys argument
 if 'labelIds' in df.columns and 'colorCode' in df.columns and 'labelIds' in args.keys:
