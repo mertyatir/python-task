@@ -105,8 +105,8 @@ def api():
     if response.status_code == 200:
         # Convert the response to JSON
 
-        data= [mock_data]
-        #data = response.json()
+        #data= [mock_data]
+        data = response.json()
 
         # Convert the JSON data to a DataFrame
         api_data = pd.DataFrame(data)

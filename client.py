@@ -9,7 +9,7 @@ from openpyxl.styles import PatternFill, Font
 # Parse command line arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('-k', '--keys', nargs='*', default=[])
-parser.add_argument('-c', '--colored', type=bool, default=True)
+parser.add_argument('-c', '--colored', action='store_false', default=True)
 args = parser.parse_args()
 
 # Read CSV file
@@ -97,5 +97,26 @@ if 'labelIds' in df.columns and 'colorCodes' in df.columns and 'labelIds' in arg
                 # Use colorCode to tint the cell's text in Excel file
                 ws.cell(row=index+2, column=columns.index('labelIds')+1).font = Font(color=color_code)
                 break
+
+
+
+# Get all column headers
+headers = [cell.value for cell in ws[1]]
+
+# Determine columns to keep
+columns_to_keep = ['rnr'] + args.keys
+
+
+
+# Delete columns not in columns_to_keep
+for header in headers:
+    if header not in columns_to_keep:
+        # Find the index of the column
+        col_index = headers.index(header) + 1  # 1-based index
+        # Delete the column
+        ws.delete_cols(col_index)
+
+
+
 # Save the changes
 wb.save(filename)
