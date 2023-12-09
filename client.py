@@ -36,11 +36,21 @@ else:
     print(f"Error: Server returned status code {response.status_code}")
     print(response.text)
 
+# Define base columns
+base_columns = ['rnr']
+
+# Add 'hu', 'colorCodes', and 'gruppe' to base_columns if they are not in keys
+if 'hu' not in args.keys:
+    base_columns.append('hu')
+if 'colorCodes' in df.columns and 'colorCodes' not in args.keys:
+    base_columns.append('colorCodes')
+if 'gruppe' not in args.keys:
+    base_columns.append('gruppe')
+
+# Combine base_columns and keys
+columns = base_columns + args.keys
+
 # Filter columns
-if "colorCodes" in df.columns:
-    columns = ['rnr', 'hu','colorCodes'] + args.keys
-else:
-    columns = ['rnr', 'hu'] + args.keys
 df = df[columns]
 
 # Check if 'hu' column exists
@@ -76,7 +86,7 @@ if args.colored:
             fill = PatternFill(start_color="b30000", end_color="b30000", fill_type="solid")
         for cell in row:
             cell.fill = fill
-            
+
 
 # Check if 'labelIds' and 'colorCodes' are in DataFrame columns and keys argument
 if 'labelIds' in df.columns and 'colorCodes' in df.columns and 'labelIds' in args.keys:
@@ -102,11 +112,11 @@ columns_to_keep = ['rnr'] + args.keys
 # Delete columns not in columns_to_keep
 for header in headers:
     if header not in columns_to_keep:
-        # Find the index of the column
         col_index = headers.index(header) + 1  # 1-based index
         # Delete the column
         ws.delete_cols(col_index)
 
+        headers = [cell.value for cell in ws[1]]  # Update headers list
 # Save the changes
 wb.save(filename)
 

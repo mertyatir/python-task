@@ -169,7 +169,6 @@ def api():
                     if response_data:  # Check if the list is not empty
                         first_dict = response_data[0]  # Access the first dictionary in the list
                         colorCode = first_dict.get('colorCode')  # Get the 'colorCode'
-                        print(f"Resolved colorCode {colorCode} for label ID {labelId}")
                         colorCodes.append(colorCode)  # Add the color code to the list
                     else:
                         print(f"Error: No data returned for label ID {labelId}")
